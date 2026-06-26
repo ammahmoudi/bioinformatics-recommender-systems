@@ -1,8 +1,7 @@
 # Advanced Recommender System Architectures: From E-Commerce to Bioinformatics
 
 **Prepared by:** Amirhossein Mahmoudi  
-**Institution:** Sharif University of Technology  
-**Context:** M.Sc. Algorithms in Bioinformatics Presentation
+
 
 ---
 
