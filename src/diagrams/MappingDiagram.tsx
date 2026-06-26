@@ -7,7 +7,7 @@ export function MappingDiagram({ domain }: { domain: 'movie' | 'bio' }) {
     { title: 'User A', detail: 'Taste profile', icon: UserRound, media: 'person', tone: 'cyan' },
     { title: 'Inception', detail: 'Movie item', icon: Film, media: 'poster', tone: 'violet' },
     { title: '5 stars', detail: 'Observed rating', icon: Star, media: 'reward', visual: 'watch-reward', tone: 'amber' },
-    { title: 'Genre + actor', detail: 'Content features', icon: Clapperboard, media: 'poster', tone: 'rose' },
+    { title: 'Genre + actor', detail: 'Content features', icon: Clapperboard, media: 'matrix', visual: 'content-features', tone: 'rose' },
     { title: 'Watch history', detail: 'User context', icon: Eye, media: 'matrix', visual: 'rating-matrix', tone: 'blue' }
   ];
   const bioNodes: FlowNode[] = [

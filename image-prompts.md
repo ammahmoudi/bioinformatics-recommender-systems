@@ -102,6 +102,36 @@ Prompt:
 Prompt:
 > Fluent 3D educational icon of a denoising autoencoder, noisy input tiles passing through a narrow glowing bottleneck and becoming clean output tiles, solid matte #101820 background, centered object, no text, no labels, no logos, PNG, 1024 x 1024, 1:1 aspect ratio.
 
+## GNN / Graph Learning Nodes
+
+### `public/assets/gnn-message-passing-node.png`
+Prompt:
+> Fluent 3D educational icon of graph neural network message passing, three rounded graph nodes sending glowing arrows into one central node with a small aggregation glow, cyan mint amber accents, solid matte #101820 background, centered object, no text, no labels, no logos, PNG, 1024 x 1024, 1:1 aspect ratio.
+
+### `public/assets/gnn-adjacency-matrix-node.png`
+Prompt:
+> Fluent 3D educational icon of an adjacency matrix for a graph neural network, small glowing square matrix beside a three-node graph with matching edge highlights, cyan and blue accents, solid matte #101820 background, centered object, no text, no readable labels, no logos, PNG, 1024 x 1024, 1:1 aspect ratio.
+
+### `public/assets/gnn-self-loop-node.png`
+Prompt:
+> Fluent 3D educational icon of self-looped adjacency in a graph neural network, graph nodes with small circular self-loop arrows plus normal edges, mint and amber highlights, solid matte #101820 background, centered object, no text, no labels, no logos, PNG, 1024 x 1024, 1:1 aspect ratio.
+
+### `public/assets/gnn-node-feature-matrix-node.png`
+Prompt:
+> Fluent 3D educational icon of a node feature matrix H, rows of rounded feature tiles connected to atom and protein graph nodes, cyan mint violet accents, solid matte #101820 background, centered object, no text, no readable labels, no logos, PNG, 1024 x 1024, 1:1 aspect ratio.
+
+### `public/assets/gnn-degree-matrix-node.png`
+Prompt:
+> Fluent 3D educational icon of a graph degree matrix D, diagonal glowing matrix cells connected to graph nodes with different neighbor counts, amber and cyan accents, solid matte #101820 background, centered object, no text, no readable labels, no logos, PNG, 1024 x 1024, 1:1 aspect ratio.
+
+### `public/assets/gnn-global-pooling-node.png`
+Prompt:
+> Fluent 3D educational icon of global pooling in a graph neural network, many small atom embeddings merging into one compact drug embedding capsule, mint violet cyan accents, solid matte #101820 background, centered object, no text, no labels, no logos, PNG, 1024 x 1024, 1:1 aspect ratio.
+
+### `public/assets/decagon-side-effect-network-node.png`
+Prompt:
+> Fluent 3D educational icon of a Decagon-style biomedical graph for polypharmacy side-effect prediction, two drug molecule nodes connected through protein network nodes into a warning score badge, rose mint cyan accents, solid matte #101820 background, centered object, no text, no labels, no logos, PNG, 1024 x 1024, 1:1 aspect ratio.
+
 ## CSS Replacement Pattern
 
 Generated images can replace placeholder backgrounds without changing the slide layout:

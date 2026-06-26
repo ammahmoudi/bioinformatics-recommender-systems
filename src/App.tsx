@@ -10,8 +10,17 @@ import { slides } from './slides/slides';
 import { TerminologySlide } from './slides/TerminologySlide';
 import { TitleSlide } from './slides/TitleSlide';
 
+function initialSlideIndex() {
+  const value = new URLSearchParams(window.location.search).get('slide');
+  if (!value) return 0;
+  const numeric = Number(value);
+  if (Number.isInteger(numeric)) return Math.min(Math.max(numeric - 1, 0), slides.length - 1);
+  const byId = slides.findIndex((slide) => slide.id === value);
+  return byId >= 0 ? byId : 0;
+}
+
 export default function App() {
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(initialSlideIndex);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedTerm, setSelectedTerm] = useState<string | undefined>();
   const current = slides[active];

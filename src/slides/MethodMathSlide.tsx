@@ -13,20 +13,24 @@ export function MethodMathSlide({ method, onOpenTerm }: { method: MethodSlide; o
     <div className="slidePage methodMathPage">
       <SlideHeading icon={Icon} kicker={`${method.number}. ${method.shortTitle} | algorithms and math`} title={`${method.shortTitle}: Flow, Formula, Tools`} summary={method.bio.context || method.summary} onOpenTerm={onOpenTerm} />
       <div className="mathGrid">
-        <SectionCard title={method.movie.chartTitle}>
-          <RichFlow nodes={methodAlgorithmNodes(method, 'movie')} />
-        </SectionCard>
-        <SectionCard title={method.bio.chartTitle}>
-          <RichFlow nodes={methodAlgorithmNodes(method, 'bio')} />
-        </SectionCard>
-        <SectionCard title="Formulas and symbols">
-          <div className="formulaGrid">
-            {method.formulas.map((formula) => <FormulaBlock formula={formula} key={formula.title} onOpenTerm={onOpenTerm} />)}
-          </div>
-        </SectionCard>
-        <SectionCard title="Algorithms and tools">
-          <Tools tools={method.tools} />
-        </SectionCard>
+        <div className="algorithmFlowRow">
+          <SectionCard title={method.movie.chartTitle}>
+            <RichFlow nodes={methodAlgorithmNodes(method, 'movie')} />
+          </SectionCard>
+          <SectionCard title={method.bio.chartTitle}>
+            <RichFlow nodes={methodAlgorithmNodes(method, 'bio')} />
+          </SectionCard>
+        </div>
+        <div className="formulaToolRow">
+          <SectionCard title="Formulas and symbols">
+            <div className="formulaGrid">
+              {method.formulas.map((formula) => <FormulaBlock formula={formula} key={formula.title} onOpenTerm={onOpenTerm} />)}
+            </div>
+          </SectionCard>
+          <SectionCard title="Algorithms and tools">
+            <Tools tools={method.tools} />
+          </SectionCard>
+        </div>
       </div>
     </div>
   );

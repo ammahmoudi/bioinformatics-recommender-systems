@@ -78,6 +78,24 @@ th, td {
   vertical-align: top;
 }
 
+.introGrid .tableCard {
+  padding: 8px;
+}
+
+.introGrid .tableCard h4 {
+  font-size: clamp(12px, 1vw, 14px);
+  margin-bottom: 3px;
+}
+
+.introGrid table {
+  font-size: clamp(9.5px, .76vw, 11.5px);
+}
+
+.introGrid th,
+.introGrid td {
+  padding: 4px 6px;
+}
+
 th {
   color: white;
   background: rgba(255,255,255,.075);
@@ -108,7 +126,7 @@ td.missing {
 .formulaGrid {
   min-height: 0;
   display: grid;
-  gap: 9px;
+  gap: 10px;
   align-content: stretch;
 }
 
@@ -133,10 +151,25 @@ td.missing {
 
 .formulaCard {
   display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 6px;
-  padding: 9px;
+  padding: 10px;
   min-height: 0;
+}
+
+.formulaContent {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.formulaMain {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 5px;
 }
 
 .katex-display {
@@ -154,6 +187,7 @@ td.missing {
   align-content: start;
   gap: 5px 8px;
   min-height: 0;
+  overflow: hidden;
 }
 
 .symbols > div {
@@ -166,10 +200,15 @@ td.missing {
   font-size: clamp(9px, .7vw, 11px);
   line-height: 1.16;
   min-width: 0;
+  overflow: hidden;
+}
+
+.symbols span {
+  min-width: 0;
 }
 
 .formulaCard.dense .symbols {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .formulaCard.dense .symbols > div {
