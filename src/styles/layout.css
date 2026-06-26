@@ -1,0 +1,157 @@
+.deck {
+  min-height: 0;
+  position: relative;
+}
+
+.slide {
+  height: 100%;
+  overflow: hidden;
+  border-radius: 30px;
+  padding: clamp(14px, 1.8vw, 24px);
+}
+
+.slidePage {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  gap: clamp(10px, 1.25vw, 16px);
+}
+
+.slideTitleRow {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 13px;
+  align-items: start;
+  min-height: 0;
+}
+
+.slideTitleRow h2 {
+  font-size: clamp(26px, 3.5vw, 48px);
+  line-height: 1;
+  margin: 3px 0 7px;
+  letter-spacing: 0;
+}
+
+.titleSlide {
+  grid-template-columns: minmax(0, 1fr) minmax(400px, .78fr);
+  align-items: center;
+}
+
+.titleCopy h1 {
+  font-size: clamp(40px, 6vw, 86px);
+  line-height: .93;
+  letter-spacing: 0;
+  margin: 12px 0 18px;
+}
+
+.titleCopy p,
+.slideTitleRow > div > p,
+.bodyText,
+.sectionCard p,
+.drawerBody p,
+.glossaryCard p {
+  color: var(--muted);
+  line-height: 1.42;
+}
+
+.titleChips, .toolGrid, .termChipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.titleChips { margin-top: 20px; }
+
+.titleChips span, .toolChip {
+  color: #071016;
+  background: linear-gradient(135deg, var(--cyan), var(--mint));
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-weight: 850;
+  font-size: 12px;
+}
+
+.heroPanel {
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.07);
+  border-radius: 26px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.terminologyPage {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.terminologyGrid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(420px, 1.08fr) minmax(0, .92fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.terminologyGrid .sectionCard:first-child {
+  grid-row: 1 / -1;
+}
+
+.methodIntroPage,
+.methodMathPage {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.introGrid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 12px;
+}
+
+.introGrid .sectionCard:last-child {
+  grid-column: 1 / -1;
+}
+
+.mathGrid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, .82fr) minmax(0, 1.18fr);
+  gap: 12px;
+}
+
+.sectionCard, .tableCard, .formulaCard, .glossaryCard {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 18px;
+  padding: 12px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.sectionCard {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 9px;
+}
+
+.sectionCard.compact {
+  display: block;
+}
+
+.sectionCard h3, .tableCard h4, .formulaCard h4, .glossaryCard h3 {
+  margin: 0;
+  font-size: clamp(14px, 1.25vw, 17px);
+  line-height: 1.1;
+}
+
+.miniHeader {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: white;
+}
+
+.subtle { color: #95a8b5; }
+

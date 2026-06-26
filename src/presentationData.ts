@@ -11,6 +11,14 @@ export type FormulaData = {
   symbols?: { symbol: string; meaning: string }[];
 };
 
+export type GlossaryEntry = {
+  definition: string;
+  example?: string;
+  formula?: string;
+  table?: TableData;
+  visual?: import('./types').FlowVisual;
+};
+
 export type MethodSlide = {
   id: string;
   number: string;
@@ -18,11 +26,9 @@ export type MethodSlide = {
   shortTitle: string;
   summary: string;
   terms: string[];
-  concreteMermaid: string;
   movie: {
     intuition: string;
     chartTitle: string;
-    mermaid: string;
     table?: TableData;
     details: string[];
   };
@@ -30,7 +36,6 @@ export type MethodSlide = {
     intuition: string;
     context: string;
     chartTitle: string;
-    mermaid: string;
     table?: TableData;
     details: string[];
   };
@@ -42,14 +47,6 @@ export const terminology = {
   title: 'General Terminology Mapping',
   summary:
     'Traditional recommendation entities map cleanly to biological prediction entities: users become drugs, diseases, or patients; items become proteins, genes, or microbes; ratings become biological interactions.',
-  mermaid: `flowchart LR
-    A["User"] --> B["Drug / Disease / Patient"]
-    B --> C["Item"]
-    C --> D["Protein / Gene / Microbe"]
-    D --> E["Rating / Interaction"]
-    E --> F["Binding / Association Score"]
-    F --> G["Features: Genre / Actor"]
-    G --> H["Features: SMILES / Fingerprints / Omics"]`,
   table: {
     title: 'Core mapping',
     headers: ['E-Commerce / Movies', 'Bioinformatics Translation', 'Brief Biological Definition'],
@@ -71,34 +68,11 @@ export const methods: MethodSlide[] = [
     shortTitle: 'Collaborative Filtering',
     summary:
       'Predict missing preferences or drug-target interactions from shared matrix patterns rather than item content.',
-    terms: ['DTI', 'Binding Affinity, Kd, and IC50', 'LMF, RLMF, and NRLMF', 'Drug Repurposing'],
-    concreteMermaid: `flowchart LR
-      subgraph "Movie Example"
-        direction LR
-        CFA["User A likes Inception + The Matrix"] --> CFB["User B has similar taste"]
-        CFB --> CFC["User B dislikes Shrek"]
-        CFC --> CFD["Predict User A may dislike Shrek"]
-      end
-      subgraph "Bio Example"
-        direction LR
-        CFE["Drug A binds Targets 1, 2, 3"] --> CFF["Drug B has similar target pattern"]
-        CFF --> CFG["Drug B binds Target 4"]
-        CFG --> CFH["Predict Drug A may bind Target 4"]
-      end`,
+    terms: ['DTI: Drug-Target Interaction', 'Binding Affinity, Kd, and IC50', 'LMF, RLMF, and NRLMF', 'Drug Repurposing'],
     movie: {
       intuition:
         '"People who liked the movies you liked also liked this movie." It does not care what the movie is about; it cares about who interacted with what.',
       chartTitle: 'Movie CF algorithm flow',
-      mermaid: `flowchart LR
-        subgraph "Movie CF"
-          direction LR
-          A1["Sparse User-Movie Matrix"] --> B1["ALS Factorization"]
-          B1 --> C1["User Latent Space"]
-          B1 --> D1["Movie Latent Space"]
-          C1 --> E1["Dot Product"]
-          D1 --> E1
-          E1 --> F1["Predicted Movie Ratings"]
-        end`,
       table: {
         title: 'Simple rating matrix',
         headers: ['User', 'Inception', 'Toy Story', 'The Matrix', 'Shrek'],
@@ -120,16 +94,6 @@ export const methods: MethodSlide[] = [
       context:
         'Drug-target interaction matrix: rows are drugs, columns are proteins, 1 means bind, 0 means do not bind, and ? means untested.',
       chartTitle: 'Bioinformatics CF algorithm flow',
-      mermaid: `flowchart LR
-        subgraph "Bioinformatics CF"
-          direction LR
-          A2["Sparse DTI Matrix"] --> B2["PMF / LMF / NRLMF"]
-          B2 --> C2["Drug Latent Space"]
-          B2 --> D2["Protein Latent Space"]
-          C2 --> E2["Dot Product / Probability"]
-          D2 --> E2
-          E2 --> F2["Predicted Binding / Interaction"]
-        end`,
       table: {
         title: 'Sample DTI matrix',
         headers: ['Drug', 'Protein T1', 'Protein T2', 'Protein T3', 'Protein T4'],
@@ -178,32 +142,10 @@ export const methods: MethodSlide[] = [
     summary:
       'Compare item features directly: movie profiles in media recommendation, chemical fingerprints in target prediction.',
     terms: ['SMILES', 'Morgan Fingerprint', 'Tanimoto Coefficient', 'TF-IDF'],
-    concreteMermaid: `flowchart LR
-      subgraph "Movie Example"
-        direction LR
-        CBFA["Inception"] --> CBFB["Features: Sci-Fi, Nolan, dreams"]
-        CBFB --> CBFC["Compare movie profiles"]
-        CBFC --> CBFD["Recommend Interstellar"]
-      end
-      subgraph "Bio Example"
-        direction LR
-        CBFE["FDA-approved Drug A"] --> CBFF["Features: SMILES + Morgan fingerprint"]
-        CBFF --> CBFG["High structural similarity"]
-        CBFG --> CBFH["Suggest similar therapeutic targets"]
-      end`,
     movie: {
       intuition:
         '"Because you watched a sci-fi movie directed by Christopher Nolan, we recommend another sci-fi movie directed by Christopher Nolan."',
       chartTitle: 'Movie CBF algorithm flow',
-      mermaid: `flowchart LR
-        subgraph "Movie CBF"
-          direction LR
-          M1["Inception: Sci-Fi, Nolan"] --> V1["TF-IDF Vector 1"]
-          M2["Interstellar: Sci-Fi, Nolan"] --> V2["TF-IDF Vector 2"]
-          V1 -->|"Cosine Similarity"| S1["Similarity Score: 0.95"]
-          V2 --> S1
-          S1 --> R1["Recommend Interstellar"]
-        end`,
       table: {
         title: 'Simple feature table',
         headers: ['Movie', 'Genre', 'Director', 'Keywords'],
@@ -225,15 +167,6 @@ export const methods: MethodSlide[] = [
       context:
         'Structural homology: molecules with similar shapes often perform similar biological functions.',
       chartTitle: 'Bioinformatics CBF algorithm flow',
-      mermaid: `flowchart LR
-        subgraph "Bioinformatics CBF"
-          direction LR
-          D1["Drug A: Known Target X"] -->|"Morgan Fingerprint"| V3["Bit Vector 1: 10110"]
-          D2["Drug B: Unknown Target"] -->|"Morgan Fingerprint"| V4["Bit Vector 2: 10100"]
-          V3 -->|"Tanimoto Coefficient"| S2["Similarity Score: 0.75"]
-          V4 --> S2
-          S2 --> R2["Predict Drug B binds Target X"]
-        end`,
       details: [
         'SMILES is a text representation of a molecule.',
         'Morgan fingerprints convert molecules into binary vectors.',
@@ -272,33 +205,10 @@ export const methods: MethodSlide[] = [
     summary:
       'Use network paths to score proximity: user-movie-actor links in media, disease-gene-protein links in biology.',
     terms: ['PPI Network', 'Random Walk with Restart (RWR)'],
-    concreteMermaid: `flowchart LR
-      subgraph "Movie Example"
-        direction LR
-        GMA["User A"] -->|"Watched"| GMB["Inception"]
-        GMB -->|"Starring"| GMC["Leonardo DiCaprio"]
-        GMC -->|"Starred In"| GMD["Titanic"]
-        GMD --> GME["Recommend Titanic"]
-      end
-      subgraph "Bio Example"
-        direction LR
-        GBA["Drug A"] -->|"Treats"| GBB["Disease X"]
-        GBB -->|"Caused by"| GBC["Gene Y"]
-        GBC -->|"Encodes"| GBD["Protein Y"]
-        GBD --> GBE["Check Drug A against Protein Y"]
-      end`,
     movie: {
       intuition:
         '"Everything is connected in a web." A user is connected to movies, movies to actors, and actors to other movies.',
       chartTitle: 'Movie graph algorithm flow',
-      mermaid: `flowchart LR
-        subgraph "Movie Graph"
-          direction LR
-          U1(("User A")) -- Watched --> M1(("Inception"))
-          M1 -- Starring --> A1(("Leonardo DiCaprio"))
-          A1 -- Starred In --> M2(("Titanic"))
-          U1 -. Short path .-> M2
-        end`,
       details: [
         'The recommender follows paths through the network.',
         'A short path can imply high recommendation relevance.',
@@ -311,14 +221,6 @@ export const methods: MethodSlide[] = [
       context:
         'PPI networks show which proteins physically or functionally interact in a cell.',
       chartTitle: 'Bioinformatics graph algorithm flow',
-      mermaid: `flowchart LR
-        subgraph "Bioinformatics Graph"
-          direction LR
-          Dise(("Disease Node")) -- Associated --> G1(("Known Gene"))
-          G1 -- PPI Edge --> P1(("Protein A"))
-          P1 -- PPI Edge --> P2(("Candidate Target"))
-          Dise -. RWR High Probability .-> P2
-        end`,
       details: [
         'Disease-gene prioritization uses Random Walk on Heterogeneous Networks.',
         'Restart keeps the score local to the starting node.',
@@ -348,31 +250,10 @@ export const methods: MethodSlide[] = [
     summary:
       'Compress incomplete or noisy profiles into latent vectors, then reconstruct dense predictions.',
     terms: ['Omics Profile', 'RNA-seq', 'Multi-Omics', 'DTI: Drug-Target Interaction'],
-    concreteMermaid: `flowchart LR
-      subgraph "Movie Example"
-        direction LR
-        AEM1["Messy watch history"] --> AEM2["Autoencoder compresses taste"]
-        AEM2 --> AEM3["Latent vector"]
-        AEM3 --> AEM4["Reconstruct missing ratings"]
-      end
-      subgraph "Bio Example"
-        direction LR
-        AEB1["Noisy RNA-seq profile"] --> AEB2["Denoising autoencoder"]
-        AEB2 --> AEB3["Cell-state vector"]
-        AEB3 --> AEB4["Predict missing gene/drug associations"]
-      end`,
     movie: {
       intuition:
         '"Compress a user\'s messy, incomplete watch history into a dense hidden code, then decode it to reconstruct missing ratings."',
       chartTitle: 'Movie autoencoder algorithm flow',
-      mermaid: `flowchart LR
-        subgraph "Movie Autoencoder"
-          direction LR
-          I1["Sparse User Ratings"] --> E1("Encoder NN")
-          E1 --> B1(("Latent Vector<br/>Taste Code"))
-          B1 --> D1("Decoder NN")
-          D1 --> O1["Dense Predicted Ratings"]
-        end`,
       details: [
         'The model is trained to copy input to output through a bottleneck.',
         'Masked or corrupted entries teach reconstruction.',
@@ -385,14 +266,6 @@ export const methods: MethodSlide[] = [
       context:
         'Omics data such as RNA-seq is high-dimensional, noisy, sparse, and highly correlated.',
       chartTitle: 'Bioinformatics autoencoder algorithm flow',
-      mermaid: `flowchart LR
-        subgraph "Bioinformatics Autoencoder"
-          direction LR
-          I2["Noisy Multi-Omics Vector"] --> E2("Encoder NN")
-          E2 --> B2(("Latent Vector<br/>Cell State"))
-          B2 --> D2("Decoder NN")
-          D2 --> O2["Cleaned, Completed DTI Profile"]
-        end`,
       table: {
         title: 'Example RNA-seq profile',
         headers: ['Sample', 'TP53', 'EGFR', 'MYC', 'BRCA1'],
@@ -426,30 +299,10 @@ export const methods: MethodSlide[] = [
     summary:
       'Update node embeddings by aggregating neighbor messages in movie graphs, molecule graphs, and protein networks.',
     terms: ['Morgan Fingerprint', 'PPI Network', 'Toxicity'],
-    concreteMermaid: `flowchart LR
-      subgraph "Movie Example"
-        direction LR
-        GNNM1["Movie node: Inception"] --> GNNM2["Receives actor + director messages"]
-        GNNM2 --> GNNM3["Updated movie embedding"]
-        GNNM3 --> GNNM4["Recommend similar graph-neighbor movies"]
-      end
-      subgraph "Bio Example"
-        direction LR
-        GNNB1["Molecular graph"] --> GNNB2["Atoms pass bond messages"]
-        GNNB2 --> GNNB3["Drug embedding"]
-        GNNB3 --> GNNB4["Predict toxicity or side effect"]
-      end`,
     movie: {
       intuition:
         '"Nodes update their own identity vectors by listening to and aggregating information from neighbors."',
       chartTitle: 'Movie GNN message passing',
-      mermaid: `flowchart LR
-        subgraph "Movie GNN Message Passing"
-          direction LR
-          A["Actor Node Vector"] -->|"Pass Info"| M["Movie Node"]
-          D["Director Node Vector"] -->|"Pass Info"| M
-          M -->|"Aggregate & Update"| M_new["Updated Movie Vector"]
-        end`,
       details: [
         'Actor and director nodes pass information into a movie node.',
         'The movie embedding updates after aggregation.',
@@ -462,14 +315,6 @@ export const methods: MethodSlide[] = [
       context:
         'Polypharmacy: multiple drugs can cause unexpected side effects because they interact with overlapping protein networks.',
       chartTitle: 'Bioinformatics GNN message passing',
-      mermaid: `flowchart LR
-        subgraph "Bioinformatics GNN Message Passing"
-          direction LR
-          At1["Carbon Atom Vector"] -->|"Bond Edge"| At2["Oxygen Atom"]
-          At3["Nitrogen Atom Vector"] -->|"Bond Edge"| At2
-          At2 -->|"Aggregate & Apply ReLU"| At2_new["Updated Oxygen Vector"]
-          At2_new -->|"Global Pooling"| Pred["Toxicity Prediction"]
-        end`,
       details: [
         'A is the adjacency matrix: which atoms are bonded.',
         'A self-looped adjacency matrix is usually A + I, so each node keeps its own information.',
@@ -500,30 +345,10 @@ export const methods: MethodSlide[] = [
     summary:
       'An agent takes actions, observes rewards, and updates its strategy, either for recommendation sequences or molecule generation.',
     terms: ['QED Score', 'Toxicity', 'Binding Affinity, Kd, and IC50', 'De Novo Drug Design'],
-    concreteMermaid: `flowchart LR
-      subgraph "Movie Example"
-        direction LR
-        RLM1["Show Inception"] --> RLM2["User watches 40 minutes"]
-        RLM2 --> RLM3["Positive reward"]
-        RLM3 --> RLM4["Policy recommends more sci-fi thrillers"]
-      end
-      subgraph "Bio Example"
-        direction LR
-        RLB1["Start molecule"] --> RLB2["Add atom or ring"]
-        RLB2 --> RLB3["Score binding + toxicity + QED"]
-        RLB3 --> RLB4["Keep actions that improve drug-likeness"]
-      end`,
     movie: {
       intuition:
         '"The system is an agent playing a game. It recommends a sequence of items, observes engagement, and maximizes reward."',
       chartTitle: 'Movie RL algorithm flow',
-      mermaid: `flowchart LR
-        subgraph "Movie RL"
-          direction LR
-          Agent1["Recommender Agent"] -->|"Action: Show Movie"| Env1["Environment: User"]
-          Env1 -->|"Reward: Watch Time"| Agent1
-          Env1 -->|"Next State: User Bored"| Agent1
-        end`,
       details: [
         'Action: show a recommendation.',
         'Reward: watch time or engagement.',
@@ -536,13 +361,6 @@ export const methods: MethodSlide[] = [
       context:
         'De novo drug design creates new molecular structures from scratch.',
       chartTitle: 'Bioinformatics RL algorithm flow',
-      mermaid: `flowchart LR
-        subgraph "Bioinformatics RL"
-          direction LR
-          Agent2["Generator Agent"] -->|"Action: Add Benzene Ring"| Env2["Environment: Chemical Simulator"]
-          Env2 -->|"Reward: High Binding Affinity + Good QED"| Agent2
-          Env2 -->|"State: Updated Molecular Graph"| Agent2
-        end`,
       details: [
         'State can be the current molecule.',
         'Action can add an atom or bond.',
@@ -567,40 +385,126 @@ export const methods: MethodSlide[] = [
   }
 ];
 
-export const glossary: Record<string, string> = {
-  'DTI: Drug-Target Interaction':
-    'Whether a drug interacts with a biological target, usually a protein. Can be binary or continuous.',
-  'Protein Target':
-    'A protein that a drug tries to bind, block, activate, or modify. Example: EGFR in cell-growth signaling.',
-  Gene: 'A DNA instruction that can be used to make RNA and often a protein.',
-  'Binding Affinity, Kd, and IC50':
-    'Binding affinity describes drug-target strength. Lower Kd means tighter binding. Lower IC50 usually means stronger assay effect.',
-  SMILES:
-    'A text string for a molecule. Examples: ethanol CCO, benzene c1ccccc1, aspirin CC(=O)Oc1ccccc1C(=O)O.',
-  'Morgan Fingerprint':
-    'A binary vector describing circular atom neighborhoods, often computed with RDKit. Toy example: 10110010.',
-  'Tanimoto Coefficient':
-    'Similarity between binary chemical fingerprints: shared 1 bits divided by 1 bits in either vector.',
-  'TF-IDF':
-    'Term Frequency-Inverse Document Frequency. It weights words common in one document but uncommon across all documents.',
-  'Omics Profile':
-    'A vector of biological measurements, such as TP53 = 8.2, EGFR = 2.1, MYC = 10.5, BRCA1 = 4.4.',
-  'RNA-seq':
-    'A sequencing method that measures which genes are active by counting RNA molecules.',
-  'Multi-Omics':
-    'Combines genomics, transcriptomics, proteomics, metabolomics, and clinical variables despite different scales and missing values.',
-  'PPI Network':
-    'Protein-protein interaction graph: proteins are nodes, physical or functional interactions are edges.',
-  'Random Walk with Restart (RWR)':
-    'Repeatedly walks to neighboring nodes and restarts at the original node to keep rankings local.',
-  'LMF, RLMF, and NRLMF':
-    'Logistic matrix factorization predicts binary interaction probabilities; RLMF regularizes it; NRLMF adds neighborhood regularization.',
-  'QED Score':
-    'A score estimating how drug-like a molecule is from chemistry properties.',
-  Toxicity:
-    'The chance that a molecule causes harmful biological effects.',
-  'Drug Repurposing':
-    'Finding a new disease use for an existing drug.',
-  'De Novo Drug Design':
-    'Designing a new molecule from scratch instead of selecting an existing one.'
+export const glossary: Record<string, GlossaryEntry> = {
+  'DTI: Drug-Target Interaction': {
+    definition: 'Whether a drug interacts with a biological target, usually a protein. It can be binary or continuous.',
+    example: 'Drug A with Protein T4 is unknown, so the model predicts whether the missing matrix cell should be 1 or 0.',
+    table: {
+      title: 'Toy DTI matrix',
+      headers: ['Drug', 'T1', 'T2', 'T3', 'T4'],
+      rows: [['Drug A', '1', '1', '1', '?'], ['Drug B', '1', '1', '1', '1']]
+    },
+    visual: 'dti-matrix'
+  },
+  'Protein Target': {
+    definition: 'A protein that a drug tries to bind, block, activate, or modify.',
+    example: 'EGFR can be treated as a target node when predicting whether a molecule affects cell-growth signaling.',
+    visual: 'protein-target'
+  },
+  Gene: {
+    definition: 'A DNA instruction that can be used to make RNA and often a protein.',
+    example: 'A disease-gene graph can connect Disease X -> Gene Y -> Protein Y.',
+    visual: 'omics-profile'
+  },
+  'Binding Affinity, Kd, and IC50': {
+    definition: 'Binding affinity describes drug-target strength. Lower Kd means tighter binding. Lower IC50 usually means stronger assay effect.',
+    example: 'A lower Kd for Drug A and Protein T4 means stronger physical binding.',
+    formula: String.raw`K_d = \frac{[D][T]}{[DT]}`,
+    table: {
+      title: 'Simple interpretation',
+      headers: ['Measure', 'Meaning'],
+      rows: [['Low Kd', 'Strong binding'], ['High Kd', 'Weak binding'], ['Low IC50', 'Strong assay effect']]
+    },
+    visual: 'binding-score'
+  },
+  SMILES: {
+    definition: 'A text string for a molecule.',
+    example: 'Ethanol is CCO, benzene is c1ccccc1, and aspirin is CC(=O)Oc1ccccc1C(=O)O.',
+    visual: 'drug-a'
+  },
+  'Morgan Fingerprint': {
+    definition: 'A binary vector describing circular atom neighborhoods, often computed with RDKit.',
+    example: 'Toy fingerprint: 10110010, where each bit marks whether a chemical substructure is present.',
+    table: {
+      title: 'Toy fingerprint',
+      headers: ['Bit', '0', '1', '2', '3', '4', '5', '6', '7'],
+      rows: [['Drug A', '1', '0', '1', '1', '0', '0', '1', '0']]
+    },
+    visual: 'fingerprint'
+  },
+  'Tanimoto Coefficient': {
+    definition: 'Similarity between binary chemical fingerprints: shared 1 bits divided by 1 bits in either vector.',
+    example: 'If two molecules share many fingerprint bits, Tanimoto moves closer to 1.',
+    formula: String.raw`T(A,B)=\frac{A \cdot B}{||A||^2 + ||B||^2 - A \cdot B}`,
+    visual: 'similarity-score'
+  },
+  'TF-IDF': {
+    definition: 'Term Frequency-Inverse Document Frequency. It weights words common in one document but uncommon across all documents.',
+    example: 'In movie text, "dreams" may be important for Inception if it appears rarely in other movie profiles.',
+    formula: String.raw`\text{tfidf}(t,d)=\text{tf}(t,d)\log\frac{N}{df(t)}`,
+    visual: 'latent-vector'
+  },
+  'Omics Profile': {
+    definition: 'A vector of biological measurements for a sample, patient, or cell.',
+    example: 'TP53 = 8.2, EGFR = 2.1, MYC = 10.5, BRCA1 = 4.4.',
+    table: {
+      title: 'Mini profile',
+      headers: ['Gene', 'TP53', 'EGFR', 'MYC', 'BRCA1'],
+      rows: [['Patient 1', '8.2', '2.1', '10.5', '4.4']]
+    },
+    visual: 'omics-profile'
+  },
+  'RNA-seq': {
+    definition: 'A sequencing method that measures which genes are active by counting RNA molecules.',
+    example: 'A noisy RNA-seq vector can be denoised and reconstructed by an autoencoder.',
+    visual: 'rna-noisy'
+  },
+  'Multi-Omics': {
+    definition: 'Combines genomics, transcriptomics, proteomics, metabolomics, and clinical variables despite different scales and missing values.',
+    example: 'One model may align DNA mutations, RNA expression, protein abundance, metabolites, and drug response.',
+    table: {
+      title: 'Layers',
+      headers: ['Layer', 'Example'],
+      rows: [['Genomics', 'mutation'], ['Transcriptomics', 'RNA-seq'], ['Proteomics', 'protein abundance'], ['Clinical', 'drug response']]
+    },
+    visual: 'multi-omics'
+  },
+  'PPI Network': {
+    definition: 'Protein-protein interaction graph: proteins are nodes, physical or functional interactions are edges.',
+    example: 'If Protein A interacts with Protein B, a graph method can spread disease or drug relevance across that edge.',
+    visual: 'ppi-network'
+  },
+  'Random Walk with Restart (RWR)': {
+    definition: 'Repeatedly walks to neighboring nodes and restarts at the original node to keep rankings local.',
+    example: 'Restart prevents the walk from drifting too far away from the disease or query protein.',
+    formula: String.raw`p_{t+1}=(1-c)Wp_t+cp_0`,
+    visual: 'rwr-transition'
+  },
+  'LMF, RLMF, and NRLMF': {
+    definition: 'Logistic matrix factorization predicts binary interaction probabilities; RLMF regularizes it; NRLMF adds neighborhood regularization.',
+    example: 'A sparse DTI matrix is decomposed into drug and protein latent vectors, then recombined into probabilities.',
+    formula: String.raw`\hat{r}_{ui}=p_u q_i^T`,
+    visual: 'als-factorization'
+  },
+  'QED Score': {
+    definition: 'A score estimating how drug-like a molecule is from chemistry properties.',
+    example: 'In RL drug design, QED can be one term in the reward along with binding and toxicity.',
+    visual: 'qed-score'
+  },
+  Toxicity: {
+    definition: 'The chance that a molecule causes harmful biological effects.',
+    example: 'A GNN can predict toxicity or side effects from atom-bond structure.',
+    visual: 'toxicity-score'
+  },
+  'Drug Repurposing': {
+    definition: 'Finding a new disease use for an existing drug.',
+    example: 'A matrix or graph model may suggest a known drug for a disease it was not originally developed for.',
+    visual: 'binding-score'
+  },
+  'De Novo Drug Design': {
+    definition: 'Designing a new molecule from scratch instead of selecting an existing one.',
+    example: 'An RL agent starts from a partial molecule and adds atoms or bonds to improve reward.',
+    visual: 'drug-new'
+  }
 };
+

@@ -1,0 +1,226 @@
+
+.toolChip {
+  background: rgba(255,255,255,.1);
+  color: var(--ink);
+  border: 1px solid rgba(255,255,255,.16);
+  font-size: clamp(10px, .88vw, 12px);
+  padding: 6px 9px;
+}
+
+.appendixPage {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.glossaryGrid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.glossaryCard p {
+  margin: 6px 0 0;
+  font-size: clamp(10px, .83vw, 12px);
+  line-height: 1.28;
+}
+
+.pager {
+  border-radius: 22px;
+  padding: 9px 12px;
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.progressArea {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.progress {
+  height: 7px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.10);
+  overflow: hidden;
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--cyan), var(--mint), var(--amber));
+  transition: width .18s ease;
+}
+
+.dotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  border-radius: 999px;
+  padding: 0;
+  border: 0;
+  background: rgba(255,255,255,.25);
+}
+
+.dot.active {
+  width: 24px;
+  background: var(--cyan);
+}
+
+.counter {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.drawer {
+  position: fixed;
+  top: 84px;
+  right: 14px;
+  bottom: 74px;
+  width: min(480px, calc(100vw - 28px));
+  border-radius: 26px;
+  padding: 14px;
+  transform: translateX(calc(100% + 26px));
+  transition: transform .2s ease;
+  z-index: 20;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.drawer.open { transform: translateX(0); }
+
+.drawerHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 12px;
+}
+
+.drawerHeader h2 { margin: 3px 0 0; }
+
+.termChipRow {
+  margin-bottom: 12px;
+  max-height: 94px;
+  overflow: hidden;
+}
+
+.termChipRow button {
+  border-radius: 999px;
+  padding: 7px 9px;
+  color: var(--muted);
+}
+
+.termChipRow button.active {
+  background: var(--cyan);
+  color: #071016;
+  border-color: transparent;
+  font-weight: 900;
+}
+
+.drawerBody {
+  min-height: 0;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 13px;
+  background: rgba(255,255,255,.07);
+  overflow: auto;
+}
+
+.drawerBody h3 { margin: 0 0 8px; }
+
+@media (max-width: 1180px) {
+  .slide { padding: 12px; }
+  .titleSlide { grid-template-columns: 1fr; align-items: start; }
+  .titleCopy h1 { font-size: clamp(34px, 7vw, 62px); }
+  .terminologyGrid,
+  .introGrid,
+  .mathGrid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+  .mathGrid { grid-template-rows: repeat(4, minmax(0, 1fr)); }
+  .terminologyGrid .sectionCard:first-child {
+    grid-row: auto;
+  }
+  .introGrid .sectionCard:last-child {
+    grid-column: auto;
+  }
+  .richFlow,
+  .mappingFlow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .glossaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .flowStep:nth-child(even) .flowArrow { display: none; }
+}
+
+@media (max-width: 760px) {
+  .appShell { padding: 8px; gap: 8px; }
+  .topbar { min-height: 56px; border-radius: 18px; }
+  .topbar nav { display: none; }
+  .brandOrb { width: 38px; height: 38px; border-radius: 14px; }
+  .brand span { display: none; }
+  .brand strong { font-size: 14px; }
+  .slide { border-radius: 20px; padding: 10px; }
+  .slideTitleRow { grid-template-columns: 1fr; gap: 6px; }
+  .slideIcon { display: none; }
+  .slideTitleRow h2 { font-size: clamp(21px, 6vw, 34px); }
+  .slideTitleRow > div > p { font-size: 12px; margin: 0; }
+  .richFlow,
+  .mappingFlow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .flowStep { grid-template-columns: 1fr; }
+  .flowArrow { display: none; }
+  .flowCard { min-height: 96px; padding: 7px; }
+  .mediaMark { min-height: 30px; }
+  .bodyText { display: none; }
+  .twoColumnBullets { grid-template-columns: 1fr; }
+  .bullets li:nth-child(n+3) { display: none; }
+  .mediaMapTable,
+  .glossaryGrid {
+    grid-template-columns: 1fr;
+  }
+  .mediaMapTable article {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 5px;
+  }
+  .mapBridge {
+    height: 8px;
+  }
+  .mediaMapTable article:nth-child(n+4),
+  .glossaryCard:nth-child(n+9) {
+    display: none;
+  }
+  .pager {
+    grid-template-columns: auto 1fr auto;
+    min-height: 52px;
+    gap: 8px;
+  }
+  .pager .counter { display: none; }
+  .pager button { padding: 8px 9px; font-size: 12px; }
+  .dotRow { display: none; }
+  .drawer { inset: 8px; width: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
