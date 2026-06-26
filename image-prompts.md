@@ -1,6 +1,6 @@
 # Image Replacement Prompts
 
-Use these prompts to generate optional replacement images for the placeholders in `presentation.html`. Save the generated files in an `assets/` folder and replace the placeholder blocks in the HTML with normal `<img>` tags.
+Use these prompts to generate optional replacement images for the integrated placeholder nodes in `presentation.html`. Save the generated files in an `assets/` folder and use them as CSS backgrounds for the matching `.thumb` nodes, or replace the inner placeholder `<div class="thumb ...">` with an `<img>` inside the same diagram step.
 
 ## Inception Placeholder
 
@@ -45,6 +45,18 @@ Prompt:
 ## RNA-seq / Multi-omics Background
 
 Filename suggestion: `assets/omics-background.png`
+
+## Optional CSS Replacement Pattern
+
+After generating images, you can add CSS like this inside `presentation.html`:
+
+```css
+.thumb.inception {
+  background-image: linear-gradient(rgba(0,0,0,.12), rgba(0,0,0,.18)), url("assets/inception-style-concept.png");
+  background-size: cover;
+  background-position: center;
+}
+```
 
 Prompt:
 
