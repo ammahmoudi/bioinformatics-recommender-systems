@@ -152,6 +152,11 @@
     grid-template-rows: repeat(3, minmax(0, 1fr));
   }
   .mathGrid { grid-template-rows: repeat(4, minmax(0, 1fr)); }
+  .mathGrid .sectionCard:nth-child(3),
+  .mathGrid .sectionCard:nth-child(4) {
+    grid-column: auto;
+    grid-row: auto;
+  }
   .terminologyGrid .sectionCard:first-child {
     grid-row: auto;
   }

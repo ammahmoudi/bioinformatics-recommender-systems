@@ -113,3 +113,18 @@ button:disabled { opacity: .42; cursor: not-allowed; }
   justify-content: flex-end;
 }
 
+.topbar nav a {
+  color: var(--ink);
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 9px 12px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.topbar nav a:hover {
+  background: rgba(255,255,255,.14);
+}
+

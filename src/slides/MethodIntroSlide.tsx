@@ -2,9 +2,9 @@ import { Sparkles } from 'lucide-react';
 import type { MethodSlide } from '../presentationData';
 import { BulletList } from '../components/BulletList';
 import { DataTable } from '../components/DataTable';
+import { LinkedText } from '../components/LinkedText';
 import { SectionCard } from '../components/SectionCard';
 import { SlideHeading } from '../components/SlideHeading';
-import { TermLinks } from '../components/TermLinks';
 import { RichFlow } from '../diagrams/RichFlow';
 import { methodConcreteNodes, methodIcons } from '../flows/methodFlowNodes';
 
@@ -18,23 +18,22 @@ export function MethodIntroSlide({ method, onOpenTerm }: { method: MethodSlide; 
   const Icon = methodIcons[method.id] ?? Sparkles;
   return (
     <div className="slidePage methodIntroPage">
-      <SlideHeading icon={Icon} kicker={`${method.number}. ${method.shortTitle} | concrete examples`} title={method.title} summary={method.summary} />
-      <TermLinks terms={method.terms} onOpenTerm={onOpenTerm} />
+      <SlideHeading icon={Icon} kicker={`${method.number}. ${method.shortTitle} | concrete examples`} title={method.title} summary={method.summary} onOpenTerm={onOpenTerm} />
       <div className="introGrid">
         <SectionCard title="Movie concrete example">
-          <p className="bodyText">{method.movie.intuition}</p>
+          <p className="bodyText"><LinkedText text={method.movie.intuition} onOpenTerm={onOpenTerm} /></p>
           <RichFlow nodes={methodConcreteNodes(method, 'movie')} />
           {method.movie.table && <DataTable table={method.movie.table} />}
         </SectionCard>
         <SectionCard title="Biology concrete example">
-          <p className="bodyText">{method.bio.intuition}</p>
+          <p className="bodyText"><LinkedText text={method.bio.intuition} onOpenTerm={onOpenTerm} /></p>
           <RichFlow nodes={methodConcreteNodes(method, 'bio')} />
           {method.bio.table && <DataTable table={method.bio.table} />}
         </SectionCard>
         <SectionCard title="Example takeaway" compact>
           <div className="twoColumnBullets">
-            <BulletList items={concreteDetails(method.movie.details)} />
-            <BulletList items={concreteDetails(method.bio.details)} />
+            <BulletList items={concreteDetails(method.movie.details)} onOpenTerm={onOpenTerm} />
+            <BulletList items={concreteDetails(method.bio.details)} onOpenTerm={onOpenTerm} />
           </div>
         </SectionCard>
       </div>

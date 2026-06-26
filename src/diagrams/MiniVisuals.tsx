@@ -107,10 +107,10 @@ export function MiniScore({ variant = 'binding-score' }: { variant?: ScoreVarian
     <svg viewBox="0 0 120 70" className={`miniSvg scoreSvg ${variant}`} aria-hidden="true">
       <path d="M24 50 A36 36 0 0 1 96 50" />
       <line x1="60" y1="50" x2={alert ? 84 : 76} y2={alert ? 29 : 34} />
-      <circle cx="60" cy="50" r="6" />
+      <circle cx="60" cy="50" r="4" />
       <rect x="38" y="13" width="44" height="18" rx="8" />
       <text x="60" y="26" textAnchor="middle">{label}</text>
-      {alert && <path d="M94 16 L108 42 H80 Z" className="scoreAlert" />}
+      {alert && <path d="M96 20 L106 39 H86 Z" className="scoreAlert" />}
     </svg>
   );
 }

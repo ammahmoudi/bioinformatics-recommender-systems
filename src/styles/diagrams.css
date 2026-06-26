@@ -26,10 +26,10 @@
   min-height: 126px;
   border: 1px solid rgba(255,255,255,.15);
   border-radius: 16px;
-  padding: 9px;
+  padding: 7px;
   display: grid;
-  grid-template-rows: auto minmax(36px, .8fr) auto auto;
-  gap: 7px;
+  grid-template-rows: minmax(52px, 1fr) auto auto;
+  gap: 5px;
   background:
     linear-gradient(145deg, rgba(255,255,255,.13), rgba(255,255,255,.045)),
     rgba(255,255,255,.04);
@@ -62,12 +62,15 @@
   align-items: center;
   position: relative;
   z-index: 1;
+  position: absolute;
+  inset: 7px 7px auto 7px;
+  pointer-events: none;
 }
 
 .nodeIcon {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 9px;
   display: grid;
   place-items: center;
   color: #071016;
@@ -75,9 +78,13 @@
 }
 
 .flowCardTop span {
-  color: rgba(255,255,255,.62);
+  color: rgba(255,255,255,.72);
   font-weight: 850;
-  font-size: 11px;
+  font-size: 9px;
+  line-height: 1;
+  padding: 4px 5px;
+  border-radius: 8px;
+  background: rgba(0,0,0,.22);
 }
 
 .flowCard h4 {
@@ -123,7 +130,7 @@
 }
 
 .mediaMark {
-  min-height: 42px;
+  min-height: 56px;
   padding: 2px;
   border: 1px solid rgba(255,255,255,.16);
   border-radius: 12px;
@@ -158,14 +165,14 @@
 .mediaMark.omics { background: rgba(184,167,255,.1); }
 
 .miniSvg {
-  width: 100%;
-  height: 100%;
-  max-width: 100%;
-  max-height: 100%;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  max-width: calc(100% - 4px);
+  max-height: calc(100% - 4px);
   min-width: 0;
   min-height: 0;
   display: block;
-  overflow: visible;
+  overflow: hidden;
 }
 .miniSvg line {
   stroke: rgba(255,255,255,.62);
@@ -252,16 +259,17 @@
 .scoreSvg path {
   fill: none;
   stroke: var(--amber);
-  stroke-width: 6;
+  stroke-width: 4;
   stroke-linecap: round;
 }
 .scoreSvg line {
   stroke: var(--cyan);
-  stroke-width: 5;
+  stroke-width: 3;
   stroke-linecap: round;
 }
 .scoreSvg circle {
   fill: var(--cyan);
+  r: 4;
 }
 .scoreSvg rect {
   fill: rgba(255,255,255,.22);
@@ -287,7 +295,9 @@
 .scoreSvg .scoreAlert {
   fill: rgba(255,143,171,.72);
   stroke: rgba(255,255,255,.7);
-  stroke-width: 2;
+  stroke-width: 1.5;
+  transform: scale(.72);
+  transform-origin: 94px 28px;
 }
 
 .matrixSvg text {

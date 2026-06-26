@@ -43,11 +43,11 @@ export default function App() {
         <div className="brand">
           <div className="brandOrb"><Atom size={28} /></div>
           <div>
-            <span>M.Sc. Algorithms in Bioinformatics</span>
             <strong>Recommender Systems in Bioinformatics</strong>
           </div>
         </div>
         <nav>
+          <a href="https://mamood.ir" target="_blank" rel="noreferrer">mamood.ir</a>
           <button onClick={() => setActive(0)}><Play size={16} /> Start</button>
           <button onClick={() => openTerm(activeTerms[0])}><CircleHelp size={16} /> Appendix</button>
         </nav>

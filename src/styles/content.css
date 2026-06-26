@@ -41,6 +41,17 @@
   display: grid;
   place-items: center;
 }
+
+button.mapCell {
+  justify-content: flex-start;
+  border: 0;
+  cursor: pointer;
+}
+
+button.mapCell:disabled {
+  opacity: 1;
+  cursor: default;
+}
 .mapBridge span {
   width: 60%;
   height: 2px;
@@ -101,22 +112,22 @@ td.missing {
   align-content: stretch;
 }
 
-.inlineTermLinks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  min-height: 0;
+.inlineAppendixLink {
+  display: inline;
+  padding: 0 1px;
+  border: 0;
+  border-radius: 0;
+  color: var(--cyan);
+  background: transparent;
+  font-weight: 850;
+  text-decoration: underline;
+  text-decoration-color: rgba(110,231,249,.45);
+  text-underline-offset: 3px;
 }
 
-.inlineTermLinks button {
-  border-radius: 999px;
-  padding: 6px 9px;
-  font-size: clamp(10px, .75vw, 12px);
-  color: var(--muted);
-  background: rgba(255,255,255,.065);
-}
-
-.inlineTermLinks button:hover {
+.inlineAppendixLink:hover {
+  transform: none;
+  background: transparent;
   color: white;
 }
 
