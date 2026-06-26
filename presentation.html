@@ -1,0 +1,988 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Recommender Systems in Bioinformatics</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --bg: #071115;
+      --ink: #f5fbff;
+      --muted: #b9c8d2;
+      --line: rgba(255, 255, 255, .18);
+      --glass: rgba(255, 255, 255, .12);
+      --glass-strong: rgba(255, 255, 255, .18);
+      --cyan: #6ee7f9;
+      --mint: #7af0b8;
+      --amber: #ffd166;
+      --rose: #ff8fab;
+      --violet: #b7a6ff;
+      --shadow: 0 24px 80px rgba(0, 0, 0, .38);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 20%, rgba(110, 231, 249, .20), transparent 28rem),
+        radial-gradient(circle at 80% 12%, rgba(255, 209, 102, .16), transparent 30rem),
+        radial-gradient(circle at 72% 78%, rgba(255, 143, 171, .14), transparent 34rem),
+        linear-gradient(135deg, #071115 0%, #0b1824 52%, #12151c 100%);
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,.9), transparent);
+    }
+
+    .app {
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 18px;
+      gap: 14px;
+    }
+
+    header, footer, .slide, .drawer {
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,255,255,.15), rgba(255,255,255,.07));
+      backdrop-filter: blur(22px) saturate(150%);
+      -webkit-backdrop-filter: blur(22px) saturate(150%);
+      box-shadow: var(--shadow);
+    }
+
+    header {
+      border-radius: 26px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      position: relative;
+      background: linear-gradient(145deg, rgba(110,231,249,.65), rgba(122,240,184,.28));
+      border: 1px solid rgba(255,255,255,.35);
+      flex: 0 0 auto;
+    }
+
+    .mark::before, .mark::after {
+      content: "";
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 18px 15px 0 rgba(255,255,255,.72), 8px 25px 0 rgba(255,255,255,.45);
+      left: 8px;
+      top: 8px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    .eyebrow {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .brand h1 {
+      font-size: clamp(15px, 2vw, 20px);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button {
+      color: var(--ink);
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.11);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+      font: inherit;
+    }
+    button:hover { transform: translateY(-1px); background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.35); }
+    button:active { transform: translateY(0); }
+    button.primary { background: rgba(110,231,249,.20); border-color: rgba(110,231,249,.45); }
+
+    main {
+      min-height: 0;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      border-radius: 34px;
+      padding: clamp(18px, 3vw, 38px);
+      overflow: auto;
+      opacity: 0;
+      transform: translateX(30px) scale(.985);
+      pointer-events: none;
+      transition: opacity .36s ease, transform .36s ease;
+    }
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .slide-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
+      gap: clamp(18px, 3vw, 34px);
+      align-items: start;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, .76fr);
+      gap: 32px;
+      align-items: center;
+      min-height: 100%;
+    }
+
+    .title {
+      font-size: clamp(38px, 7vw, 88px);
+      line-height: .96;
+      letter-spacing: 0;
+      max-width: 980px;
+    }
+
+    .subtitle {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: clamp(16px, 2vw, 22px);
+      line-height: 1.5;
+      max-width: 780px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.09);
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 4vw, 54px);
+      line-height: 1.02;
+      margin-bottom: 10px;
+    }
+
+    .section-kicker {
+      color: var(--cyan);
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: .12em;
+    }
+
+    .lead {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 16px;
+      margin-bottom: 18px;
+    }
+
+    .panel, .mini-card, .table-card, .formula, .media-card {
+      border: 1px solid rgba(255,255,255,.17);
+      background: rgba(255,255,255,.075);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: 0 12px 32px rgba(0,0,0,.18);
+    }
+
+    .stack { display: grid; gap: 14px; }
+    .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+
+    .mini-card h3, .panel h3, .table-card h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    .mini-card p, .panel p, .table-card p, li {
+      color: var(--muted);
+      line-height: 1.46;
+      font-size: 14px;
+    }
+    ul { margin: 10px 0 0; padding-left: 18px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px 9px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: #fff; font-weight: 700; background: rgba(255,255,255,.08); }
+    td { color: var(--muted); }
+    tr:last-child td { border-bottom: 0; }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .node {
+      min-width: 142px;
+      border-radius: 18px;
+      padding: 13px 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+      color: #f8fdff;
+      font-weight: 700;
+      font-size: 13px;
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+    }
+    .node.round { border-radius: 999px; min-width: 116px; }
+    .arrow {
+      width: 34px;
+      height: 1px;
+      background: rgba(255,255,255,.48);
+      flex: 0 0 auto;
+      position: relative;
+    }
+    .arrow::after {
+      content: "";
+      position: absolute;
+      right: -1px;
+      top: -4px;
+      border-left: 8px solid rgba(255,255,255,.58);
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+    }
+
+    .formula {
+      font-size: 16px;
+      overflow-x: auto;
+    }
+
+    .image-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .image-placeholder {
+      min-height: 165px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.2);
+      background:
+        linear-gradient(135deg, rgba(110,231,249,.2), rgba(255,143,171,.16)),
+        linear-gradient(45deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      display: grid;
+      place-items: end start;
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .image-placeholder::before {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border-radius: 18px;
+      border: 1px dashed rgba(255,255,255,.26);
+    }
+    .image-placeholder span {
+      position: relative;
+      z-index: 1;
+      font-weight: 800;
+      text-shadow: 0 2px 18px rgba(0,0,0,.45);
+    }
+
+    .molecule {
+      width: min(100%, 360px);
+      aspect-ratio: 1.12;
+      margin: 0 auto;
+      display: block;
+      filter: drop-shadow(0 22px 40px rgba(0,0,0,.35));
+    }
+    .bond {
+      stroke: rgba(255,255,255,.72);
+      stroke-width: 5;
+      stroke-linecap: round;
+      animation: glow 2.8s ease-in-out infinite alternate;
+    }
+    .atom { animation: bob 3s ease-in-out infinite; transform-origin: center; }
+    .atom:nth-of-type(2n) { animation-delay: -.9s; }
+    .atom:nth-of-type(3n) { animation-delay: -1.8s; }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    @keyframes glow {
+      from { opacity: .55; }
+      to { opacity: 1; }
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: 90px repeat(4, minmax(62px, 1fr));
+      gap: 1px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.12);
+    }
+    .cell {
+      padding: 10px 8px;
+      background: rgba(255,255,255,.07);
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+    .cell.head { color: white; font-weight: 800; background: rgba(255,255,255,.13); }
+    .cell.hot { color: #031014; background: linear-gradient(135deg, var(--mint), var(--cyan)); font-weight: 900; }
+    .cell.miss { color: #140909; background: linear-gradient(135deg, var(--amber), var(--rose)); font-weight: 900; }
+
+    footer {
+      border-radius: 24px;
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .progress {
+      height: 8px;
+      background: rgba(255,255,255,.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cyan), var(--mint), var(--amber));
+      border-radius: inherit;
+      transition: width .3s ease;
+    }
+    .dots {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      padding: 0;
+      background: rgba(255,255,255,.24);
+      border: 0;
+    }
+    .dot.active { width: 24px; background: var(--cyan); }
+    .counter { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    .drawer {
+      position: fixed;
+      right: 18px;
+      top: 92px;
+      bottom: 78px;
+      width: min(460px, calc(100vw - 36px));
+      border-radius: 30px;
+      padding: 18px;
+      transform: translateX(calc(100% + 28px));
+      transition: transform .3s ease;
+      z-index: 20;
+      overflow: auto;
+    }
+    .drawer.open { transform: translateX(0); }
+    .drawer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .term-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .term-buttons button {
+      padding: 8px 10px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .term-buttons button.active { color: #071115; background: var(--cyan); }
+    .term-body {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .term-body h3 { color: #fff; margin: 0 0 8px; }
+    .term-body code {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 8px;
+      padding: 1px 5px;
+      color: var(--cyan);
+    }
+
+    @media (max-width: 980px) {
+      body { overflow: auto; }
+      .app { min-height: 100%; height: auto; }
+      main { min-height: 70vh; }
+      .slide { position: relative; display: none; min-height: 70vh; }
+      .slide.active { display: block; }
+      .slide-grid, .hero-grid, .two, .three, .image-row { grid-template-columns: 1fr; }
+      footer { grid-template-columns: 1fr; }
+      .dots { order: 3; }
+      .top-actions { display: none; }
+      .drawer { top: 18px; bottom: 18px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div>
+          <div class="eyebrow">M.Sc. Algorithms in Bioinformatics</div>
+          <h1>Recommender Systems in Bioinformatics</h1>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button id="outlineBtn">Outline</button>
+        <button class="primary" id="appendixBtn">Appendix</button>
+      </div>
+    </header>
+
+    <main id="slides">
+      <section class="slide active" data-terms="dti,protein,binding,smiles,morgan,omics,multiomics">
+        <div class="hero-grid">
+          <div>
+            <div class="section-kicker">From e-commerce to molecular discovery</div>
+            <h2 class="title">Advanced Recommender System Architectures</h2>
+            <p class="subtitle">A paginated visual presentation based on the source Markdown: collaborative filtering, content features, graph walks, autoencoders, GNNs, and reinforcement learning translated into bioinformatics.</p>
+            <div class="meta">
+              <span class="pill">Prepared by: Amirhossein Mahmoudi</span>
+              <span class="pill">Sharif University of Technology</span>
+              <span class="pill">Horizontal diagrams</span>
+              <span class="pill">Math + glossary drawer</span>
+            </div>
+          </div>
+          <div class="panel">
+            <svg class="molecule" viewBox="0 0 420 360" role="img" aria-label="Animated molecular object">
+              <line class="bond" x1="118" y1="178" x2="198" y2="104" />
+              <line class="bond" x1="198" y1="104" x2="292" y2="140" />
+              <line class="bond" x1="292" y1="140" x2="276" y2="244" />
+              <line class="bond" x1="276" y1="244" x2="160" y2="258" />
+              <line class="bond" x1="160" y1="258" x2="118" y2="178" />
+              <line class="bond" x1="198" y1="104" x2="160" y2="258" opacity=".35" />
+              <circle class="atom" cx="118" cy="178" r="30" fill="#6ee7f9" />
+              <circle class="atom" cx="198" cy="104" r="24" fill="#7af0b8" />
+              <circle class="atom" cx="292" cy="140" r="34" fill="#ff8fab" />
+              <circle class="atom" cx="276" cy="244" r="26" fill="#ffd166" />
+              <circle class="atom" cx="160" cy="258" r="22" fill="#b7a6ff" />
+            </svg>
+            <p class="lead">The same idea repeats: represent entities as vectors, matrices, graphs, or states; then predict missing or useful biological relationships.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-terms="protein,binding,dti,smiles,morgan,omics,multiomics">
+        <div class="slide-grid">
+          <div>
+            <div class="section-kicker">1. Terminology mapping</div>
+            <h2 class="section-title">Recommendation language becomes biological language.</h2>
+            <p class="lead">The source document maps users, items, ratings, features, and histories into drugs, proteins, binding scores, chemical features, and omics profiles.</p>
+            <div class="flow panel">
+              <div class="node">User</div><div class="arrow"></div>
+              <div class="node">Drug / Disease / Patient</div><div class="arrow"></div>
+              <div class="node">Protein / Gene / Microbe</div><div class="arrow"></div>
+              <div class="node">Binding / Association Score</div><div class="arrow"></div>
+              <div class="node">SMILES / Fingerprints / Omics</div>
+            </div>
+          </div>
+          <div class="table-card">
+            <h3>Core Mapping</h3>
+            <table>
+              <tr><th>E-Commerce / Movies</th><th>Bioinformatics</th></tr>
+              <tr><td>User</td><td>Drug, disease, or patient</td></tr>
+              <tr><td>Item</td><td>Protein target, gene, or microbe</td></tr>
+              <tr><td>Rating</td><td>Binding affinity, DTI, association score</td></tr>
+              <tr><td>Genre / actor</td><td>SMILES, Morgan fingerprint, sequence</td></tr>
+              <tr><td>User history</td><td>Omics or multi-omics profile</td></tr>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-terms="dti,binding,lmf">
+        <div class="slide-grid">
+          <div class="stack">
+            <div>
+              <div class="section-kicker">2. Collaborative filtering</div>
+              <h2 class="section-title">Predict from shared behavior patterns.</h2>
+              <p class="lead">Movie intuition: User A and User B have similar tastes. If User B dislikes Shrek, User A may dislike Shrek too. Bio translation: if Drug A and Drug B share target patterns, one drug's missing target can be predicted from the other's profile.</p>
+            </div>
+            <div class="panel">
+              <h3>Concrete Flow</h3>
+              <div class="flow">
+                <div class="node">User A likes Inception + The Matrix</div><div class="arrow"></div>
+                <div class="node">User B has similar taste</div><div class="arrow"></div>
+                <div class="node">User B dislikes Shrek</div><div class="arrow"></div>
+                <div class="node">Predict User A may dislike Shrek</div>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Bio Flow</h3>
+              <div class="flow">
+                <div class="node">Drug A binds Targets 1, 2, 3</div><div class="arrow"></div>
+                <div class="node">Drug B has similar target pattern</div><div class="arrow"></div>
+                <div class="node">Drug B binds Target 4</div><div class="arrow"></div>
+                <div class="node">Predict Drug A may bind Target 4</div>
+              </div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="matrix">
+              <div class="cell head">User</div><div class="cell head">Inception</div><div class="cell head">Toy Story</div><div class="cell head">Matrix</div><div class="cell head">Shrek</div>
+              <div class="cell head">User A</div><div class="cell hot">5</div><div class="cell">1</div><div class="cell hot">5</div><div class="cell miss">?</div>
+              <div class="cell head">User B</div><div class="cell hot">5</div><div class="cell">2</div><div class="cell hot">4</div><div class="cell">1</div>
+              <div class="cell head">User C</div><div class="cell">1</div><div class="cell hot">5</div><div class="cell">1</div><div class="cell hot">5</div>
+            </div>
+            <div class="formula">\( \hat{r}_{ui} = p_u \cdot q_i^T \)</div>
+            <div class="formula">\( \min_{P,Q} \sum_{(u,i)} (r_{ui} - p_u \cdot q_i^T)^2 + \lambda(||p_u||^2 + ||q_i||^2) \)</div>
+            <div class="mini-card">
+              <h3>Algorithms / tools</h3>
+              <p>Netflix Prize-style SVD, Apache Spark MLlib ALS, Surprise, implicit, LightFM, PMF, BPR, LMF, RLMF, NRLMF, PyDTI, DeepPurpose, Yamanishi datasets.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-terms="smiles,morgan,tanimoto,tfidf">
+        <div class="slide-grid">
+          <div class="stack">
+            <div>
+              <div class="section-kicker">3. Content-based filtering</div>
+              <h2 class="section-title">Recommend from item features.</h2>
+              <p class="lead">Movie intuition: Inception and Interstellar share sci-fi, Nolan, and concept-driven keywords. Bio translation: molecules with similar SMILES-derived fingerprints may share therapeutic targets.</p>
+            </div>
+            <div class="panel">
+              <h3>Movie Flow</h3>
+              <div class="flow">
+                <div class="node">Inception</div><div class="arrow"></div>
+                <div class="node">Sci-Fi, Nolan, dreams</div><div class="arrow"></div>
+                <div class="node">Compare profiles</div><div class="arrow"></div>
+                <div class="node">Recommend Interstellar</div>
+              </div>
+            </div>
+            <div class="image-row">
+              <div class="image-placeholder"><span>Inception placeholder</span></div>
+              <div class="image-placeholder"><span>Interstellar placeholder</span></div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="panel">
+              <h3>Bio Flow</h3>
+              <div class="flow">
+                <div class="node">FDA-approved Drug A</div><div class="arrow"></div>
+                <div class="node">SMILES + Morgan fingerprint</div><div class="arrow"></div>
+                <div class="node">High structural similarity</div><div class="arrow"></div>
+                <div class="node">Suggest similar targets</div>
+              </div>
+            </div>
+            <svg class="molecule" viewBox="0 0 420 260" role="img" aria-label="Molecule fingerprint illustration">
+              <line class="bond" x1="86" y1="130" x2="150" y2="70" />
+              <line class="bond" x1="150" y1="70" x2="224" y2="118" />
+              <line class="bond" x1="224" y1="118" x2="308" y2="80" />
+              <line class="bond" x1="224" y1="118" x2="244" y2="190" />
+              <circle class="atom" cx="86" cy="130" r="26" fill="#6ee7f9" />
+              <circle class="atom" cx="150" cy="70" r="22" fill="#7af0b8" />
+              <circle class="atom" cx="224" cy="118" r="30" fill="#ffd166" />
+              <circle class="atom" cx="308" cy="80" r="24" fill="#ff8fab" />
+              <circle class="atom" cx="244" cy="190" r="22" fill="#b7a6ff" />
+            </svg>
+            <div class="formula">\( \text{Cosine}(A, B) = \frac{A \cdot B}{||A|| ||B||} \)</div>
+            <div class="formula">\( T(A, B) = \frac{A \cdot B}{||A||^2 + ||B||^2 - A \cdot B} \)</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-terms="rwr,ppi">
+        <div class="slide-grid">
+          <div class="stack">
+            <div>
+              <div class="section-kicker">4. Graph-based methods</div>
+              <h2 class="section-title">Recommend by walking through a network.</h2>
+              <p class="lead">A user is connected to a movie, the movie to an actor, and the actor to another movie. In bioinformatics, drugs, diseases, genes, and proteins form a heterogeneous biological network.</p>
+            </div>
+            <div class="panel">
+              <h3>Movie Graph</h3>
+              <div class="flow">
+                <div class="node round">User A</div><div class="arrow"></div>
+                <div class="node round">Inception</div><div class="arrow"></div>
+                <div class="node round">Leonardo DiCaprio</div><div class="arrow"></div>
+                <div class="node round">Titanic</div>
+              </div>
+            </div>
+            <div class="image-row">
+              <div class="image-placeholder"><span>Leonardo placeholder</span></div>
+              <div class="image-placeholder"><span>Titanic placeholder</span></div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="panel">
+              <h3>Bio Graph</h3>
+              <div class="flow">
+                <div class="node round">Disease Node</div><div class="arrow"></div>
+                <div class="node round">Known Gene</div><div class="arrow"></div>
+                <div class="node round">Protein A</div><div class="arrow"></div>
+                <div class="node round">Candidate Target</div>
+              </div>
+            </div>
+            <div class="formula">\( p_{t+1} = (1-c) W p_t + c p_0 \)</div>
+            <div class="mini-card">
+              <h3>Why restart?</h3>
+              <p>Without restart, the walker may drift far away and recommend generally popular nodes. Restart keeps the score personalized around the starting user, disease, or drug.</p>
+            </div>
+            <div class="mini-card">
+              <h3>Tools</h3>
+              <p>PageRank, Personalized PageRank, Neo4j Graph Data Science, NetworkX, igraph, STRING, BioGRID, Cytoscape, Hetionet, OpenTargets.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-terms="omics,rnaseq,multiomics,dti">
+        <div class="slide-grid">
+          <div class="stack">
+            <div>
+              <div class="section-kicker">5. Autoencoders</div>
+              <h2 class="section-title">Compress noisy profiles, reconstruct missing values.</h2>
+              <p class="lead">During training, parts of the input are masked or corrupted. The model learns to reconstruct them, so missing ratings or biological measurements can later be filled in by the decoder.</p>
+            </div>
+            <div class="panel">
+              <h3>Movie Flow</h3>
+              <div class="flow">
+                <div class="node">Messy watch history</div><div class="arrow"></div>
+                <div class="node">Encoder NN</div><div class="arrow"></div>
+                <div class="node">Taste code</div><div class="arrow"></div>
+                <div class="node">Dense predicted ratings</div>
+              </div>
+            </div>
+            <div class="formula">\( L(x, \hat{x}) = ||x - \sigma(W' \sigma(Wx + b) + b')||^2 \)</div>
+          </div>
+          <div class="stack">
+            <div class="panel">
+              <h3>Bio Flow</h3>
+              <div class="flow">
+                <div class="node">Noisy RNA-seq profile</div><div class="arrow"></div>
+                <div class="node">Denoising autoencoder</div><div class="arrow"></div>
+                <div class="node">Cell-state vector</div><div class="arrow"></div>
+                <div class="node">Predict missing gene/drug associations</div>
+              </div>
+            </div>
+            <div class="table-card">
+              <h3>Example RNA-seq profile</h3>
+              <table>
+                <tr><th>Sample</th><th>TP53</th><th>EGFR</th><th>MYC</th><th>BRCA1</th></tr>
+                <tr><td>Patient 1</td><td>8.2</td><td>2.1</td><td>10.5</td><td>4.4</td></tr>
+              </table>
+            </div>
+            <div class="mini-card">
+              <h3>Tools</h3>
+              <p>AutoRec, VAE, RecVAE, DeepDR, scVI/scANVI, DCA, MOFA+, PyTorch, TensorFlow/Keras, Scanpy-based workflows.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-terms="morgan,ppi">
+        <div class="slide-grid">
+          <div class="stack">
+            <div>
+              <div class="section-kicker">6. Graph neural networks</div>
+              <h2 class="section-title">Nodes update by receiving messages.</h2>
+              <p class="lead">A molecule is a graph: atoms are nodes and bonds are edges. A GNN aggregates neighbor messages to predict toxicity, binding, or side effects.</p>
+            </div>
+            <div class="panel">
+              <h3>Message Passing</h3>
+              <div class="flow">
+                <div class="node">Carbon atom</div><div class="arrow"></div>
+                <div class="node">Oxygen atom</div><div class="arrow"></div>
+                <div class="node">Updated oxygen vector</div><div class="arrow"></div>
+                <div class="node">Toxicity prediction</div>
+              </div>
+            </div>
+            <div class="formula">\( H^{(l+1)} = \sigma(\tilde{D}^{-\frac{1}{2}} \tilde{A} \tilde{D}^{-\frac{1}{2}} H^{(l)} W^{(l)}) \)</div>
+          </div>
+          <div class="stack">
+            <svg class="molecule" viewBox="0 0 430 310" role="img" aria-label="Molecular graph object">
+              <line class="bond" x1="90" y1="156" x2="170" y2="95" />
+              <line class="bond" x1="170" y1="95" x2="250" y2="156" />
+              <line class="bond" x1="250" y1="156" x2="340" y2="118" />
+              <line class="bond" x1="250" y1="156" x2="220" y2="242" />
+              <line class="bond" x1="90" y1="156" x2="220" y2="242" opacity=".38" />
+              <circle class="atom" cx="90" cy="156" r="28" fill="#6ee7f9" />
+              <circle class="atom" cx="170" cy="95" r="24" fill="#ffd166" />
+              <circle class="atom" cx="250" cy="156" r="34" fill="#ff8fab" />
+              <circle class="atom" cx="340" cy="118" r="22" fill="#7af0b8" />
+              <circle class="atom" cx="220" cy="242" r="26" fill="#b7a6ff" />
+            </svg>
+            <div class="mini-card">
+              <h3>Self-looped adjacency</h3>
+              <p>\(\tilde{A} = A + I\). Normal graph edges plus each node's edge to itself, so every node keeps its own current features while receiving neighbor messages.</p>
+            </div>
+            <div class="mini-card">
+              <h3>Tools</h3>
+              <p>PinSage-style graph recommenders, GraphSAGE, LightGCN, PyTorch Geometric, DGL, StellarGraph, Decagon, DeepChem, DGL-LifeSci, Chemprop, RDKit-backed pipelines.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-terms="qed,toxicity,binding,denovo">
+        <div class="slide-grid">
+          <div class="stack">
+            <div>
+              <div class="section-kicker">7. Reinforcement learning</div>
+              <h2 class="section-title">Generate actions, score rewards, improve policy.</h2>
+              <p class="lead">In movies, the action is showing a recommendation and the reward is engagement. In de novo drug design, the action adds an atom or ring and the reward combines binding, toxicity, and QED.</p>
+            </div>
+            <div class="panel">
+              <h3>Movie Flow</h3>
+              <div class="flow">
+                <div class="node">Show Inception</div><div class="arrow"></div>
+                <div class="node">User watches 40 minutes</div><div class="arrow"></div>
+                <div class="node">Positive reward</div><div class="arrow"></div>
+                <div class="node">More sci-fi thrillers</div>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Bio Flow</h3>
+              <div class="flow">
+                <div class="node">Start molecule</div><div class="arrow"></div>
+                <div class="node">Add atom or ring</div><div class="arrow"></div>
+                <div class="node">Score binding + toxicity + QED</div><div class="arrow"></div>
+                <div class="node">Keep better actions</div>
+              </div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="formula">\( Q(s, a) = \mathbb{E} [r_{t+1} + \gamma \max_{a'} Q(s_{t+1}, a') | s_t = s, a_t = a] \)</div>
+            <svg class="molecule" viewBox="0 0 420 260" role="img" aria-label="Molecule generation object">
+              <line class="bond" x1="95" y1="132" x2="150" y2="80" />
+              <line class="bond" x1="150" y1="80" x2="218" y2="122" />
+              <line class="bond" x1="218" y1="122" x2="284" y2="86" />
+              <line class="bond" x1="284" y1="86" x2="338" y2="132" />
+              <circle class="atom" cx="95" cy="132" r="24" fill="#6ee7f9" />
+              <circle class="atom" cx="150" cy="80" r="22" fill="#7af0b8" />
+              <circle class="atom" cx="218" cy="122" r="30" fill="#ffd166" />
+              <circle class="atom" cx="284" cy="86" r="22" fill="#ff8fab" />
+              <circle class="atom" cx="338" cy="132" r="26" fill="#b7a6ff" />
+            </svg>
+            <div class="mini-card">
+              <h3>Algorithms / tools</h3>
+              <p>Contextual bandits, LinUCB, Thompson Sampling, DQN-style recommenders, Vowpal Wabbit, Ray RLlib, Microsoft Recommenders, PPO, GCPN, REINVENT, MolDQN, RationaleRL, GuacaMol, MOSES, RDKit, AutoDock Vina loops.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-terms="dti,protein,binding,smiles,morgan,tanimoto,tfidf,omics,rnaseq,multiomics,ppi,rwr,lmf,qed,toxicity,repurposing,denovo">
+        <div>
+          <div class="section-kicker">Appendix</div>
+          <h2 class="section-title">Biology and math glossary</h2>
+          <p class="lead">Use the Appendix button to inspect terms relevant to the current page. This final page exposes the full glossary list.</p>
+          <div class="three">
+            <div class="mini-card"><h3>Chemistry</h3><p>SMILES, Morgan fingerprint, Tanimoto, binding affinity, Kd, IC50, QED, toxicity.</p></div>
+            <div class="mini-card"><h3>Biological data</h3><p>DTI, protein target, gene, omics profile, RNA-seq, multi-omics, PPI network.</p></div>
+            <div class="mini-card"><h3>Models</h3><p>RWR, LMF, RLMF, NRLMF, matrix factorization, autoencoders, GNNs, reinforcement learning.</p></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div>
+        <button id="prevBtn" aria-label="Previous slide">Prev</button>
+        <button id="nextBtn" class="primary" aria-label="Next slide">Next</button>
+      </div>
+      <div>
+        <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+        <div class="dots" id="dots" aria-label="Slide pagination"></div>
+      </div>
+      <div class="counter" id="counter">01 / 09</div>
+    </footer>
+  </div>
+
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div>
+        <div class="eyebrow">Appendix terms</div>
+        <h2 id="drawerTitle">Glossary</h2>
+      </div>
+      <button id="closeDrawer">Close</button>
+    </div>
+    <div class="term-buttons" id="termButtons"></div>
+    <div class="term-body" id="termBody"></div>
+  </aside>
+
+  <script>
+    const appendix = {
+      dti: { title: "DTI: Drug-Target Interaction", body: "A DTI asks whether a drug interacts with a biological target, usually a protein. It can be binary, such as binds or does not bind, or continuous, meaning how strongly it binds. Example row: Drug A has EGFR = 1, BRAF = 0, ACE2 = ?." },
+      protein: { title: "Protein Target", body: "A protein that a drug tries to bind, block, activate, or modify. Example from the source: a cancer drug may target EGFR, a protein involved in cell-growth signaling." },
+      gene: { title: "Gene", body: "A DNA instruction that can be used to make RNA and often a protein. A disease gene is a gene whose mutation or abnormal activity is linked to a disease." },
+      binding: { title: "Binding Affinity, Kd, and IC50", body: "Binding affinity describes how strongly a drug binds to a target. Kd is a dissociation constant; lower Kd means tighter binding. IC50 is the concentration needed to inhibit 50% of a biological activity; lower IC50 usually means stronger effect." },
+      smiles: { title: "SMILES", body: "SMILES is a text string that represents a molecule. Examples from the source: ethanol is <code>CCO</code>, benzene is <code>c1ccccc1</code>, aspirin is <code>CC(=O)Oc1ccccc1C(=O)O</code>." },
+      morgan: { title: "Morgan Fingerprint", body: "A binary vector describing circular neighborhoods around atoms. Toy example: Drug A = <code>10110010</code>, Drug B = <code>10100010</code>. Matching 1s mean shared local chemical patterns." },
+      tanimoto: { title: "Tanimoto Coefficient", body: "Measures similarity between binary chemical fingerprints. For binary vectors: T(A,B) = shared 1 bits / 1 bits in A or B. Toy example: 2 shared bits over 3 active union bits gives 2/3 = 0.67." },
+      tfidf: { title: "TF-IDF", body: "Term Frequency-Inverse Document Frequency. It gives high weight to words common in one document but uncommon across all documents. Inception can have high weight on dreams; Interstellar can have high weight on space." },
+      omics: { title: "Omics Profile", body: "An omics profile is a vector of biological measurements. Source example RNA-seq profile: Patient 1 has TP53 = 8.2, EGFR = 2.1, MYC = 10.5, BRCA1 = 4.4." },
+      rnaseq: { title: "RNA-seq", body: "RNA-seq measures which genes are active by counting RNA molecules. If a gene has many RNA reads, it is likely highly expressed in that sample." },
+      multiomics: { title: "Multi-Omics", body: "Multi-omics combines biological layers: genomics, transcriptomics, proteomics, metabolomics, and clinical variables. The problem is different units, missing values, noise, and batch effects." },
+      ppi: { title: "PPI Network", body: "A protein-protein interaction network is a graph where nodes are proteins and edges mean physical or functional interaction." },
+      rwr: { title: "Random Walk with Restart", body: "RWR repeatedly mixes walking to a neighboring node and restarting at the original node. Restart keeps the ranking local around the starting user, disease, or drug." },
+      lmf: { title: "LMF, RLMF, and NRLMF", body: "Logistic Matrix Factorization predicts a probability instead of a star rating. RLMF adds regularization. NRLMF adds neighborhood regularization so similar drugs and similar targets have similar latent vectors." },
+      qed: { title: "QED Score", body: "QED estimates how drug-like a molecule is. It combines properties such as molecular weight, polarity, aromatic rings, and other chemistry rules into one score." },
+      toxicity: { title: "Toxicity", body: "Toxicity is the chance that a molecule causes harmful biological effects. High binding affinity alone is not enough." },
+      repurposing: { title: "Drug Repurposing", body: "Drug repurposing means finding a new disease use for an existing drug. It is attractive because the safety profile may already be partially known." },
+      denovo: { title: "De Novo Drug Design", body: "De novo drug design means designing a new molecule from scratch instead of selecting from existing drugs." }
+    };
+
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const dots = document.getElementById('dots');
+    const progressBar = document.getElementById('progressBar');
+    const counter = document.getElementById('counter');
+    const drawer = document.getElementById('drawer');
+    const termButtons = document.getElementById('termButtons');
+    const termBody = document.getElementById('termBody');
+    let index = 0;
+
+    slides.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'dot';
+      dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+      dot.addEventListener('click', () => showSlide(i));
+      dots.appendChild(dot);
+    });
+
+    function renderTerms() {
+      const terms = (slides[index].dataset.terms || '').split(',').filter(Boolean);
+      termButtons.innerHTML = '';
+      terms.forEach((key, i) => {
+        const item = appendix[key];
+        if (!item) return;
+        const btn = document.createElement('button');
+        btn.textContent = item.title.split(':')[0];
+        btn.addEventListener('click', () => setTerm(key, btn));
+        termButtons.appendChild(btn);
+        if (i === 0) setTimeout(() => setTerm(key, btn), 0);
+      });
+      if (!terms.length) termBody.innerHTML = '<p>No appendix terms for this page.</p>';
+    }
+
+    function setTerm(key, activeBtn) {
+      const item = appendix[key];
+      if (!item) return;
+      Array.from(termButtons.children).forEach(b => b.classList.remove('active'));
+      if (activeBtn) activeBtn.classList.add('active');
+      termBody.innerHTML = `<h3>${item.title}</h3><p>${item.body}</p>`;
+      if (window.MathJax) MathJax.typesetPromise([termBody]).catch(() => {});
+    }
+
+    function showSlide(next) {
+      index = (next + slides.length) % slides.length;
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+      Array.from(dots.children).forEach((dot, i) => dot.classList.toggle('active', i === index));
+      progressBar.style.width = `${((index + 1) / slides.length) * 100}%`;
+      counter.textContent = `${String(index + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+      renderTerms();
+      if (window.MathJax) MathJax.typesetPromise([slides[index]]).catch(() => {});
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', () => showSlide(index - 1));
+    document.getElementById('nextBtn').addEventListener('click', () => showSlide(index + 1));
+    document.getElementById('appendixBtn').addEventListener('click', () => {
+      drawer.classList.add('open');
+      drawer.setAttribute('aria-hidden', 'false');
+      renderTerms();
+    });
+    document.getElementById('outlineBtn').addEventListener('click', () => showSlide(0));
+    document.getElementById('closeDrawer').addEventListener('click', () => {
+      drawer.classList.remove('open');
+      drawer.setAttribute('aria-hidden', 'true');
+    });
+
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowRight' || event.key === 'PageDown') showSlide(index + 1);
+      if (event.key === 'ArrowLeft' || event.key === 'PageUp') showSlide(index - 1);
+      if (event.key === 'Escape') drawer.classList.remove('open');
+    });
+
+    showSlide(0);
+  </script>
+</body>
+</html>
