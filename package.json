@@ -1,7 +1,6 @@
 {
 	"name": "bio-recommender-presentation",
 	"version": "1.0.0",
-  "homepage": "https://ammahmoudi.github.io/bioinformatics-recommender-systems/",
 	"private": true,
 	"type": "module",
 	"scripts": {
